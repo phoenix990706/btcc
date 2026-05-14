@@ -138,7 +138,6 @@ body{font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;b
   <span class="pnav-t">BTCC × Interac CAD 低保真原型（中文）</span>
   <button class="pt on" onclick="go('p1')">P1 选择支付方式</button>
   <button class="pt" onclick="go('p2')">P2 填写信息</button>
-  <button class="pt" onclick="go('p2e')">P2.1 校验错误</button>
 
 </div>
 
@@ -245,55 +244,12 @@ body{font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;b
   </div>
 </div>
 
-<!-- ========== P2.1 校验错误 ========== -->
-<div id="p2e" class="scr">
-  <nav class="bnav">
-    <div class="blogo">BTCC</div>
-    <div class="nlinks"><div class="nl on">入金▾</div><div class="nl">行情</div></div>
-    <div class="nr"><button class="bdep">入金</button><span class="ni">👤</span></div>
-  </nav>
-  <div class="sl">P2.1 — 表单校验错误态</div>
-  <div class="bread"><span>BTCC</span><span class="s">/</span><span>资产</span><span class="s">/</span><span>法币入金</span><span class="s">/</span><span class="c">填写信息</span></div>
-  <div class="pw">
-    <div style="font-size:16px;font-weight:700;margin-bottom:16px;">购买 USDT — TodaPay Interac</div>
-    <div class="stb">
-      <div class="st on"><div class="d">1</div>填写信息</div><div class="stl"></div>
-      <div class="st"><div class="d">2</div>Interac 转账</div><div class="stl"></div>
-      <div class="st"><div class="d">3</div>完成</div>
-    </div>
-    <div class="fc">
-      <div class="fct">个人信息</div>
-      <div class="fcs" style="color:#bbb;">⚠ 请修正以下错误后继续</div>
-      <div class="fr">
-        <div class="fg"><div class="fl"><span class="r">*</span> 名 (First Name)</div><input class="fi err" value=""><div class="fe">⚠ 请输入名字</div></div>
-        <div class="fg"><div class="fl"><span class="r">*</span> 姓 (Last Name)</div><input class="fi err" value=""><div class="fe">⚠ 请输入姓氏</div></div>
-      </div>
-      <div class="sdiv"></div>
-      <div class="sst">联系方式</div>
-      <div class="fr">
-        <div class="fg"><div class="fl"><span class="r">*</span> 邮箱</div><input class="fi err" value="abc123"><div class="fe">⚠ 邮箱格式不正确</div></div>
-        <div class="fg"><div class="fl"><span class="r">*</span> 手机号（加拿大）</div><div style="display:flex;align-items:center;gap:0"><span style="padding:9px 10px;background:var(--bg4);border:1px solid var(--border);border-right:none;border-radius:var(--radius) 0 0 var(--radius);color:var(--text2);font-size:13px;white-space:nowrap">+1</span><input class="fi err" style="border-radius:0 var(--radius) var(--radius) 0" value="123"></div><div class="fe">⚠ 请输入 10 位加拿大手机号</div></div>
-      </div>
-      <div class="sdiv"></div>
-      <div class="sst">账单地址</div>
-      <div class="fg" style="margin-bottom:12px"><div class="fl"><span class="r">*</span> 完整地址</div><input class="fi err" value=""><div class="fe">⚠ 请输入完整地址</div></div>
-      <div class="fr">
-        <div class="fg"><div class="fl"><span class="r">*</span> 省份</div><select class="fsel" style="border-color:#999"><option selected>请选择省份</option></select><div class="fe">⚠ 请选择省份</div></div>
-        <div class="fg"><div class="fl"><span class="r">*</span> 城市</div><input class="fi err" value=""><div class="fe">⚠ 请输入城市</div></div>
-        <div class="fg"><div class="fl"><span class="r">*</span> 邮编</div><input class="fi err" value="12345"><div class="fe">⚠ 请输入加拿大邮编格式（A1A 1A1）</div></div>
-      </div>
-      <button class="btn off" disabled>提交并前往支付</button>
-      <div class="sb">🔒 安全支付</div>
-    </div>
-  </div>
-</div>
-
 <script>
 function go(id){
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.pt').forEach(t=>t.classList.remove('on'));
   document.getElementById(id).classList.add('on');
-  const m={p1:0,p2:1,p2e:2};
+  const m={p1:0,p2:1};
   const ts=document.querySelectorAll('.pt');
   if(m[id]!==undefined)ts[m[id]].classList.add('on');
   window.scrollTo({top:0,behavior:'smooth'});
