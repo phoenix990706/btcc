@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTCC × TodaPay Interac CAD — 中文低保真原型</title>
+<style>
+:root {
+  --bg:#0d0d0d; --bg2:#161616; --bg3:#1f1f1f; --bg4:#2c2c2c;
+  --border:#303030; --border2:#484848;
+  --text:#eee; --text2:#999; --text3:#666;
+  --white:#fff; --radius:8px; --nav-h:52px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+
+/* Proto Nav */
+.pnav{position:fixed;top:0;left:0;right:0;z-index:200;background:#1a1a1a;border-bottom:1px solid #333;padding:7px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pnav-t{font-size:11px;color:#777;margin-right:4px;white-space:nowrap}
+.pt{padding:5px 12px;border-radius:5px;cursor:pointer;font-size:11px;background:#2a2a2a;border:1px solid #444;color:#aaa;transition:.15s}
+.pt:hover{background:#3a3a3a;color:#ddd}
+.pt.on{background:#fff;border-color:#fff;color:#000;font-weight:700}
+
+/* BTCC Nav */
+.bnav{height:var(--nav-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:sticky;top:40px;z-index:100}
+.blogo{font-weight:800;font-size:17px;margin-right:28px;letter-spacing:-.5px;display:flex;align-items:center;gap:4px}
+.nlinks{display:flex;gap:0;flex:1}
+.nl{padding:0 14px;height:var(--nav-h);display:flex;align-items:center;color:var(--text2);font-size:13px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.nl.on{color:var(--text);border-bottom-color:var(--text)}
+.nr{display:flex;align-items:center;gap:10px;margin-left:auto}
+.bdep{padding:7px 16px;border:1px solid var(--text);border-radius:var(--radius);color:var(--text);font-size:12px;cursor:pointer;background:transparent;font-weight:600}
+.ni{color:var(--text2);font-size:14px;cursor:pointer;padding:3px}
+
+/* Bread */
+.bread{padding:12px 28px;font-size:12px;color:var(--text3)}
+.bread .s{margin:0 5px}
+.bread .c{color:var(--text2)}
+
+/* Body */
+.pw{padding:0 28px 36px;max-width:1060px}
+
+/* Deposit Layout */
+.dl{display:grid;grid-template-columns:1fr auto 360px;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.dl-l{padding:20px;border-right:1px solid var(--border)}
+.dl-d{width:36px;display:flex;align-items:center;justify-content:center}
+.dl-r{padding:20px}
+.sn{width:20px;height:20px;border-radius:50%;background:var(--text);color:#000;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:7px}
+.sh{display:flex;align-items:center;margin-bottom:14px;font-size:14px;font-weight:600}
+
+/* PM List */
+.pm{display:flex;flex-direction:column;gap:7px;max-height:320px;overflow-y:auto}
+.pm::-webkit-scrollbar{width:3px}.pm::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.pi{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:.12s}
+.pi:hover{border-color:var(--border2);background:var(--bg3)}
+.pi.sel{border-color:var(--white);background:var(--bg3)}
+.pic{width:34px;height:34px;border-radius:6px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text2);flex-shrink:0}
+.pn{font-size:13px;font-weight:500}
+.pl{font-size:11px;color:var(--text3);margin-top:2px}
+.tag{display:inline-block;font-size:9px;color:var(--text2);border:1px dashed var(--text2);border-radius:3px;padding:1px 5px;margin-left:6px}
+
+/* Qty */
+.qs{font-size:11px;color:var(--text3);margin-bottom:12px}
+.qi-w{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:center;margin-bottom:8px}
+.qi{background:none;border:none;color:var(--text);font-size:18px;font-weight:600;width:100%;outline:none;flex:1}
+.qc{font-size:13px;font-weight:600;color:var(--text2)}
+.qq{display:flex;gap:6px;margin-bottom:16px}
+.qch{padding:5px 12px;border:1px solid var(--border);border-radius:16px;font-size:12px;cursor:pointer;color:var(--text2)}
+.qch.s{border-color:var(--text2);color:var(--text)}
+.rr{display:flex;justify-content:space-between;padding:6px 0;font-size:12px}
+.rl{color:var(--text2)}.rv{font-weight:500}
+
+.btn{width:100%;padding:12px;border:none;border-radius:var(--radius);background:var(--text);color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:.12s;margin-top:8px}
+.btn:hover{background:#d0d0d0}
+.btn.off{background:var(--bg4);color:var(--text3);cursor:not-allowed}
+.btn.g{background:transparent;color:var(--text2);border:1px solid var(--border2);margin-top:8px}
+.btn.g:hover{border-color:var(--text2);color:var(--text)}
+.cd{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px}
+.sb{text-align:center;margin-top:8px;font-size:11px;color:var(--text3)}
+
+/* Screen */
+.scr{display:none;padding-top:40px}.scr.on{display:block}
+.sl{font-size:10px;color:var(--text3);text-align:right;padding:5px 28px 0;font-style:italic}
+
+/* Steps */
+.stb{display:flex;align-items:center;gap:0;margin-bottom:20px;padding:16px 0 0}
+.st{display:flex;align-items:center;gap:6px;color:var(--text3);font-size:12px}
+.st.on{color:var(--text);font-weight:600}
+.st.ok{color:var(--text2)}
+.st .d{width:22px;height:22px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.st.on .d{background:var(--text);color:#000;border-color:var(--text)}
+.st.ok .d{background:var(--text2);color:#000;border-color:var(--text2)}
+.stl{flex:1;height:1px;background:var(--border);margin:0 6px;max-width:50px}
+.stl.ok{background:var(--text2)}
+
+/* Form */
+.fc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;max-width:620px;padding:24px 28px}
+.fct{font-size:17px;font-weight:700;margin-bottom:3px}
+.fcs{font-size:12px;color:var(--text3);margin-bottom:20px}
+.fr{display:flex;gap:12px;margin-bottom:14px}
+.fg{flex:1}
+.fl{font-size:11px;color:var(--text2);margin-bottom:5px;display:flex;align-items:center;gap:3px}
+.fl .r{color:#ccc}
+.fi{width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;outline:none;transition:.12s}
+.fi::placeholder{color:var(--text3)}
+.fi:focus{border-color:var(--border2);background:var(--bg4)}
+.fi.err{border-color:#999}
+.fsel{width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.fh{font-size:10px;color:var(--text3);margin-top:4px}
+.fe{font-size:10px;color:#bbb;margin-top:4px}
+.sdiv{height:1px;background:var(--border);margin:16px 0}
+.sst{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px}
+.nb{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin:14px 0}
+.nb .nt{font-size:12px;font-weight:600;margin-bottom:4px;color:var(--text2)}
+.nb p{font-size:11px;color:var(--text3);line-height:1.7}
+
+/* Order Detail */
+.od{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:left;margin-bottom:20px}
+.or{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.or:last-child{border:none}
+.or .l{color:var(--text3)}.or .v{font-weight:500}
+
+/* Result */
+.rc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;max-width:500px;padding:36px;text-align:center}
+.ri{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid var(--border2);background:var(--bg3);color:var(--text2)}
+.rt{font-size:18px;font-weight:700;margin-bottom:5px}
+.rs{font-size:12px;color:var(--text3);margin-bottom:20px}
+.ra{display:flex;gap:10px}
+
+/* Redirect */
+.rdc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;max-width:500px;padding:40px 36px;text-align:center}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spin{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 20px}
+</style>
+</head>
+<body>
+
+<div class="pnav">
+  <span class="pnav-t">BTCC × Interac CAD 低保真原型（中文）</span>
+  <button class="pt on" onclick="go('p1')">P1 选择支付方式</button>
+  <button class="pt" onclick="go('p2')">P2 填写信息</button>
+  <button class="pt" onclick="go('p2e')">P2.1 校验错误</button>
+
+</div>
+
+<!-- ========== P1 选择支付方式 + 输入金额 ========== -->
+<div id="p1" class="scr on">
+  <nav class="bnav">
+    <div class="blogo">BTCC</div>
+    <div class="nlinks">
+      <div class="nl on">入金▾</div>
+      <div class="nl">行情</div>
+      <div class="nl">合约▾</div>
+      <div class="nl">跟单▾</div>
+      <div class="nl">现货▾</div>
+      <div class="nl">福利▾</div>
+    </div>
+    <div class="nr">
+      <button class="bdep">入金</button>
+      <span class="ni">资产▾</span>
+      <span class="ni">👤</span>
+      <span class="ni">🔔</span>
+    </div>
+  </nav>
+  <div class="sl">P1 — 法币入金页 · TODApay_PC</div>
+  <div class="bread"><span>BTCC</span><span class="s">/</span><span>资产</span><span class="s">/</span><span class="c">法币入金</span></div>
+  <div class="pw">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div style="font-size:22px;font-weight:700;">法币入金</div>
+      <button style="padding:7px 14px;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text2);font-size:12px;cursor:pointer;background:transparent;">数字货币入金</button>
+    </div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px;">购买 USDT</div>
+    <div class="dl">
+      <div class="dl-l">
+        <div class="sh"><span class="sn">1</span>选择支付方式</div>
+        <div class="pm">
+          <div class="pi"><div class="pic">PIX</div><div><div class="pn">PIX 转账</div><div class="pl">单笔限额 1 ~ 1,000 USDT</div></div></div>
+          <div class="pi"><div class="pic">VISA</div><div><div class="pn">Visa/Mastercard</div><div class="pl">单笔限额 5 ~ 20,000 USDT</div></div></div>
+          <div class="pi"><div class="pic">街口</div><div><div class="pn">街口支付</div><div class="pl">单笔限额 1 ~ 1,000 USDT</div></div></div>
+          <div class="pi sel"><div class="pic">Interac</div><div><div class="pn">TodaPay Interac <span class="tag">本次接入</span></div><div class="pl">单笔限额 5 ~ 3,000 USDT · 加拿大 CAD</div></div></div>
+          <div class="pi"><div class="pic">VISA</div><div><div class="pn">Visa/Mastercard 2</div><div class="pl">单笔限额 1 ~ 1,500 USDT</div></div></div>
+          <div class="pi"><div class="pic">ACH</div><div><div class="pn">ACH 银行转账</div><div class="pl">单笔限额 1 ~ 5,000 USDT · 3-5 工作日</div></div></div>
+        </div>
+      </div>
+      <div class="dl-d"><div class="cd">→</div></div>
+      <div class="dl-r">
+        <div class="sh"><span class="sn">2</span>购买数量</div>
+        <div class="qs">输入购买 USDT 数量</div>
+        <div class="qi-w"><input class="qi" value="500" placeholder="0"><span class="qc">USDT</span></div>
+        <div class="qq">
+          <div class="qch">300</div><div class="qch s">500</div><div class="qch">1000</div><div class="qch">2000</div>
+        </div>
+        <div class="rr"><span class="rl">参考汇率</span><span class="rv">1.3832 CAD/USDT</span></div>
+        <div class="rr"><span class="rl">应付金额</span><span class="rv" style="font-size:15px;font-weight:700;">691.6 CAD</span></div>
+        <div class="rr"><span class="rl">预计到账</span><span class="rv">500 USDT</span></div>
+        <button class="btn" onclick="go('p2')">0 手续费购买</button>
+        <div class="sb">🔒 安全支付</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== P2 填写用户信息 ========== -->
+<div id="p2" class="scr">
+  <nav class="bnav">
+    <div class="blogo">BTCC</div>
+    <div class="nlinks"><div class="nl on">入金▾</div><div class="nl">行情</div><div class="nl">合约▾</div></div>
+    <div class="nr"><button class="bdep">入金</button><span class="ni">资产▾</span><span class="ni">👤</span></div>
+  </nav>
+  <div class="sl">P2 — 用户信息填写 · 步骤 1/3</div>
+  <div class="bread"><span>BTCC</span><span class="s">/</span><span>资产</span><span class="s">/</span><span>法币入金</span><span class="s">/</span><span class="c">填写信息</span></div>
+  <div class="pw">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px;">购买 USDT — TodaPay Interac</div>
+    <div class="stb">
+      <div class="st on"><div class="d">1</div>填写信息</div><div class="stl"></div>
+      <div class="st"><div class="d">2</div>Interac 转账</div><div class="stl"></div>
+      <div class="st"><div class="d">3</div>完成</div>
+    </div>
+    <div class="fc">
+      <div class="fct">个人信息</div>
+      <div class="fcs">Interac 要求提供以下信息，请确保姓名与 KYC 注册及银行账户姓名一致。</div>
+      <div class="fr">
+        <div class="fg"><div class="fl"><span class="r">*</span> 名 (First Name)</div><input class="fi" value="John" placeholder="请输入名字"></div>
+        <div class="fg"><div class="fl"><span class="r">*</span> 姓 (Last Name)</div><input class="fi" value="Smith" placeholder="请输入姓氏"></div>
+      </div>
+      <div class="sdiv"></div>
+      <div class="sst">联系方式</div>
+      <div class="fr">
+        <div class="fg"><div class="fl"><span class="r">*</span> 邮箱</div><input class="fi" value="john@gmail.com" placeholder="example@email.com"></div>
+        <div class="fg"><div class="fl"><span class="r">*</span> 手机号（加拿大）</div><div style="display:flex;align-items:center;gap:0"><span style="padding:9px 10px;background:var(--bg4);border:1px solid var(--border);border-right:none;border-radius:var(--radius) 0 0 var(--radius);color:var(--text2);font-size:13px;white-space:nowrap">+1</span><input class="fi" style="border-radius:0 var(--radius) var(--radius) 0" value="4165550123" placeholder="10 位手机号"></div><div class="fh">无需填写国家代码，默认 +1</div></div>
+      </div>
+      <div class="sdiv"></div>
+      <div class="sst">账单地址 <span class="tag">Interac 必填</span></div>
+      <div class="fg" style="margin-bottom:12px"><div class="fl"><span class="r">*</span> 完整地址</div><input class="fi" value="10 New Burlington Street Apt. 214" placeholder="如 10 New Burlington Street Apt. 214"></div>
+      <div class="fr">
+        <div class="fg">
+          <div class="fl"><span class="r">*</span> 省份</div>
+          <select class="fsel"><option value="">请选择省份</option><option value="AB">AB — Alberta</option><option value="BC">BC — British Columbia</option><option value="MB">MB — Manitoba</option><option value="ON" selected>ON — Ontario</option><option value="QC">QC — Quebec</option><option value="SK">SK — Saskatchewan</option></select>
+        </div>
+        <div class="fg"><div class="fl"><span class="r">*</span> 城市</div><input class="fi" value="Toronto" placeholder="如 Toronto"></div>
+        <div class="fg"><div class="fl"><span class="r">*</span> 邮编</div><input class="fi" value="M5J 2N1" placeholder="如 M5J 2N1"><div class="fh">格式：A1A 1A1</div></div>
+      </div>
+      <button class="btn">提交并前往支付 →</button>
+      <div class="sb">🔒 安全支付 | TodaPay 托管收银台</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== P2.1 校验错误 ========== -->
+<div id="p2e" class="scr">
+  <nav class="bnav">
+    <div class="blogo">BTCC</div>
+    <div class="nlinks"><div class="nl on">入金▾</div><div class="nl">行情</div></div>
+    <div class="nr"><button class="bdep">入金</button><span class="ni">👤</span></div>
+  </nav>
+  <div class="sl">P2.1 — 表单校验错误态</div>
+  <div class="bread"><span>BTCC</span><span class="s">/</span><span>资产</span><span class="s">/</span><span>法币入金</span><span class="s">/</span><span class="c">填写信息</span></div>
+  <div class="pw">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px;">购买 USDT — TodaPay Interac</div>
+    <div class="stb">
+      <div class="st on"><div class="d">1</div>填写信息</div><div class="stl"></div>
+      <div class="st"><div class="d">2</div>Interac 转账</div><div class="stl"></div>
+      <div class="st"><div class="d">3</div>完成</div>
+    </div>
+    <div class="fc">
+      <div class="fct">个人信息</div>
+      <div class="fcs" style="color:#bbb;">⚠ 请修正以下错误后继续</div>
+      <div class="fr">
+        <div class="fg"><div class="fl"><span class="r">*</span> 名 (First Name)</div><input class="fi err" value=""><div class="fe">⚠ 请输入名字</div></div>
+        <div class="fg"><div class="fl"><span class="r">*</span> 姓 (Last Name)</div><input class="fi err" value=""><div class="fe">⚠ 请输入姓氏</div></div>
+      </div>
+      <div class="sdiv"></div>
+      <div class="sst">联系方式</div>
+      <div class="fr">
+        <div class="fg"><div class="fl"><span class="r">*</span> 邮箱</div><input class="fi err" value="abc123"><div class="fe">⚠ 邮箱格式不正确</div></div>
+        <div class="fg"><div class="fl"><span class="r">*</span> 手机号（加拿大）</div><div style="display:flex;align-items:center;gap:0"><span style="padding:9px 10px;background:var(--bg4);border:1px solid var(--border);border-right:none;border-radius:var(--radius) 0 0 var(--radius);color:var(--text2);font-size:13px;white-space:nowrap">+1</span><input class="fi err" style="border-radius:0 var(--radius) var(--radius) 0" value="123"></div><div class="fe">⚠ 请输入 10 位加拿大手机号</div></div>
+      </div>
+      <div class="sdiv"></div>
+      <div class="sst">账单地址</div>
+      <div class="fg" style="margin-bottom:12px"><div class="fl"><span class="r">*</span> 完整地址</div><input class="fi err" value=""><div class="fe">⚠ 请输入完整地址</div></div>
+      <div class="fr">
+        <div class="fg"><div class="fl"><span class="r">*</span> 省份</div><select class="fsel" style="border-color:#999"><option selected>请选择省份</option></select><div class="fe">⚠ 请选择省份</div></div>
+        <div class="fg"><div class="fl"><span class="r">*</span> 城市</div><input class="fi err" value=""><div class="fe">⚠ 请输入城市</div></div>
+        <div class="fg"><div class="fl"><span class="r">*</span> 邮编</div><input class="fi err" value="12345"><div class="fe">⚠ 请输入加拿大邮编格式（A1A 1A1）</div></div>
+      </div>
+      <button class="btn off" disabled>提交并前往支付</button>
+      <div class="sb">🔒 安全支付</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.pt').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  const m={p1:0,p2:1,p2e:2};
+  const ts=document.querySelectorAll('.pt');
+  if(m[id]!==undefined)ts[m[id]].classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
