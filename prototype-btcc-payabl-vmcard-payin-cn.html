@@ -305,16 +305,16 @@ code{font-family:monospace;font-size:10px;color:#e2e8f0;background:rgba(255,255,
           </div>
         </div>
 
-        <!-- 有效日期 -->
-        <div class="ff-field" style="max-width:200px">
-          <div class="ff-label">有效日期（MM/YY）</div>
-          <input class="ff-input" value="03/61" placeholder="MM/YY">
-        </div>
-
-        <!-- 安全码 -->
-        <div class="ff-field" style="max-width:200px">
-          <div class="ff-label">安全码（CVV/CVC）</div>
-          <input class="ff-input" type="password" value="111" placeholder="CVV">
+        <!-- 有效日期 + 安全码 并排 -->
+        <div class="ff-row">
+          <div class="ff-field">
+            <div class="ff-label">有效日期（MM/YY）</div>
+            <input class="ff-input" value="03/61" placeholder="MM/YY">
+          </div>
+          <div class="ff-field">
+            <div class="ff-label">安全码（CVV/CVC）</div>
+            <input class="ff-input" type="password" value="111" placeholder="CVV">
+          </div>
         </div>
 
         <!-- 持卡人 -->
@@ -328,7 +328,7 @@ code{font-family:monospace;font-size:10px;color:#e2e8f0;background:rgba(255,255,
               <input class="ff-input" value="LOU" placeholder="姓 Last Name">
             </div>
           </div>
-          <div class="ff-hint">支付成功后将自动绑定银行卡，<a href="#">查看推荐银行</a></div>
+
         </div>
 
         <!-- 邮箱（API 必填）-->
@@ -375,9 +375,9 @@ code{font-family:monospace;font-size:10px;color:#e2e8f0;background:rgba(255,255,
         <!-- 温馨提示 -->
         <div class="tips">
           <div class="tips-t">温馨提示：</div>
-          <p>1、目前只支持Visa和Master卡进行绑定。<br>
-          2、提交无需支付任何费用，只做绑定验证。<br>
-          3、提交银行卡资讯表示您同意：银行卡支付处理器根据支付卡安全标准（PCI DSS）存储您的持卡人资讯，便于您后续的出入金。</p>
+          <p>1、请确保卡片信息与发卡行记录一致，信息有误将导致支付失败。<br>
+          2、本页面通过 TLS 加密传输，卡号等敏感信息不在 BTCC 服务器留存。<br>
+          3、部分银行卡需完成 3D Secure 身份验证，请在跳转页面按银行指引操作。</p>
         </div>
       </div>
 
