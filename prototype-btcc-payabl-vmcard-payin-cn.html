@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTCC × payabl. VM 卡 Payin — 原型</title>
+<style>
+:root{
+  --bg:#0d0d0d;--bg2:#161616;--bg3:#1f1f1f;--bg4:#2c2c2c;
+  --border:#303030;--border2:#484848;
+  --text:#eee;--text2:#999;--text3:#666;
+  --radius:8px;--nav-h:52px;
+  --green:#22c55e;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+
+/* Proto nav */
+.pnav{position:fixed;top:0;left:0;right:0;z-index:200;background:#1a1a1a;border-bottom:1px solid #333;padding:7px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pnav-t{font-size:11px;color:#777;margin-right:4px;white-space:nowrap}
+.pt{padding:5px 12px;border-radius:5px;cursor:pointer;font-size:11px;background:#2a2a2a;border:1px solid #444;color:#aaa;transition:.15s}
+.pt:hover{background:#3a3a3a;color:#ddd}
+.pt.on{background:#fff;border-color:#fff;color:#000;font-weight:700}
+
+/* BTCC top nav */
+.bnav{height:var(--nav-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;position:sticky;top:40px;z-index:100}
+.blogo{font-weight:800;font-size:17px;margin-right:28px}
+.nlinks{display:flex;flex:1}
+.nl{padding:0 14px;height:var(--nav-h);display:flex;align-items:center;color:var(--text2);font-size:13px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.nl.on{color:var(--text);border-bottom-color:var(--text)}
+.nr{display:flex;align-items:center;gap:10px;margin-left:auto}
+.bdep{padding:7px 16px;border:1px solid var(--text);border-radius:var(--radius);color:var(--text);font-size:12px;cursor:pointer;background:transparent;font-weight:600}
+
+.bread{padding:10px 28px;font-size:12px;color:var(--text3)}
+.bread .s{margin:0 5px}
+.bread .c{color:var(--text2)}
+.pw{padding:0 28px 40px;max-width:1060px}
+.sl{font-size:10px;color:var(--text3);text-align:right;padding:4px 28px 0;font-style:italic}
+.scr{display:none;padding-top:40px}.scr.on{display:block}
+
+/* P1 two-column layout */
+.dl{display:grid;grid-template-columns:1fr 36px 360px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.dl-l{padding:20px;border-right:1px solid var(--border)}
+.dl-d{display:flex;align-items:center;justify-content:center}
+.dl-r{padding:20px}
+.sn{width:22px;height:22px;border-radius:50%;background:var(--text);color:#000;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-right:7px}
+.sh{display:flex;align-items:center;margin-bottom:14px;font-size:14px;font-weight:600}
+.cd{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px}
+
+/* Payment method list */
+.pm{display:flex;flex-direction:column;gap:7px;max-height:360px;overflow-y:auto}
+.pm::-webkit-scrollbar{width:3px}.pm::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.pi{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:.12s}
+.pi:hover{border-color:var(--border2);background:var(--bg3)}
+.pi.sel{border-color:#fff;background:var(--bg3)}
+.pic{width:38px;height:38px;border-radius:6px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text2);flex-shrink:0}
+.pn{font-size:13px;font-weight:500}.pl{font-size:11px;color:var(--text3);margin-top:2px}
+.tag{font-size:9px;color:var(--green);border:1px solid rgba(34,197,94,.4);background:rgba(34,197,94,.08);border-radius:3px;padding:1px 5px;margin-left:5px}
+.pchk{margin-left:auto;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;position:relative}
+.pi.sel .pchk{background:var(--text);border-color:var(--text)}
+.pi.sel .pchk::after{content:"✓";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:#000;font-weight:700}
+.pm-foot{margin-top:10px;font-size:11px;color:var(--text3);padding-top:10px;border-top:1px solid var(--border)}
+
+/* Amount input */
+.qs{font-size:11px;color:var(--text3);margin-bottom:10px}
+.qi-w{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.qi{background:none;border:none;color:var(--text);font-size:22px;font-weight:700;flex:1;outline:none;min-width:0}
+.qsep{width:1px;height:22px;background:var(--border)}
+.qcurr{font-size:13px;color:var(--text2);white-space:nowrap;cursor:pointer;user-select:none}
+.qq{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.qch{padding:5px 14px;border:1px solid var(--border);border-radius:16px;font-size:12px;cursor:pointer;color:var(--text2);transition:.12s}
+.qch:hover{border-color:var(--border2);color:var(--text)}
+.qch.s{border-color:var(--text2);color:var(--text)}
+
+/* Summary box */
+.sum-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px;border-bottom:1px solid var(--border)}
+.sr:last-child{border:none}
+.sl2{color:var(--text2)}.sv{font-weight:500}
+.sv.big{font-size:17px;font-weight:700}
+.sv.green{color:var(--green)}
+.vip{font-size:10px;color:var(--green);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:3px;padding:1px 5px;margin-left:5px}
+
+/* Info box */
+.info-box{background:var(--bg3);border:1px solid var(--border);border-left:3px solid #3b82f6;border-radius:var(--radius);padding:11px 13px;margin-bottom:14px}
+.info-box .it{font-size:12px;font-weight:600;color:#60a5fa;margin-bottom:5px}
+.info-box p{font-size:11px;color:var(--text3);line-height:1.8}
+
+.btn-main{width:100%;padding:13px;border:none;border-radius:var(--radius);background:#fff;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:.12s}
+.btn-main:hover{background:#d8d8d8}
+.btn-ghost{width:100%;padding:11px;border:1px solid var(--border2);border-radius:var(--radius);background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:.12s}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
+.sb{text-align:center;margin-top:10px;font-size:11px;color:var(--text3)}
+
+/* ===== P2 App style ===== */
+.p2-bg{background:#f2f2f7;min-height:100vh}
+.p2-topbar{height:44px;background:#f2f2f7;display:flex;align-items:center;justify-content:center;position:relative;padding:0 16px}
+.p2-back{position:absolute;left:16px;font-size:18px;color:#1c1c1e;cursor:pointer}
+.p2-title-bar{font-size:17px;font-weight:600;color:#1c1c1e}
+.p2-wrap{max-width:480px;margin:0 auto;padding:0 0 24px}
+.p2-card{background:#fff;border-radius:16px;margin:12px 16px 0;padding:20px 16px 4px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.p2-card-title{font-size:17px;font-weight:700;color:#1c1c1e;margin-bottom:18px}
+
+/* Form fields */
+.ff-label{font-size:13px;color:#6b7280;margin-bottom:6px;font-weight:500}
+.ff-field{margin-bottom:16px}
+.ff-input{width:100%;padding:13px 14px;background:#f3f4f6;border:1.5px solid transparent;border-radius:10px;font-size:15px;color:#1c1c1e;outline:none;transition:.15s;appearance:none}
+.ff-input:focus{border-color:#1e3a8a;background:#fff}
+.ff-input::placeholder{color:#9ca3af}
+.ff-input.mono{font-family:"Courier New",monospace;letter-spacing:2px;font-size:16px}
+.ff-row{display:flex;gap:10px}
+.ff-row .ff-field{flex:1}
+.ff-hint{font-size:11px;color:#9ca3af;margin-top:5px}
+.ff-hint a{color:#1e3a8a;text-decoration:none}
+
+/* Card number with brand badge */
+.ccn-wrap{position:relative}
+.ccn-badge{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:38px;height:24px;background:#1a56db;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;pointer-events:none}
+.ff-input.has-badge{padding-left:60px}
+.ccn-scan{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:20px;cursor:pointer;line-height:1}
+
+/* Billing address toggle */
+.billing-toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 0 10px;border-top:1px solid #f3f4f6}
+.billing-toggle-text .btl{font-size:15px;font-weight:600;color:#1c1c1e}
+.billing-toggle-text .bts{font-size:12px;color:#6b7280;margin-top:3px}
+.ios-toggle{width:51px;height:31px;border-radius:16px;background:#e5e7eb;cursor:pointer;position:relative;transition:.2s;flex-shrink:0;margin-top:2px;border:none;outline:none;padding:0}
+.ios-toggle.on{background:#1e3a8a}
+.ios-toggle::after{content:"";position:absolute;width:27px;height:27px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.ios-toggle.on::after{left:22px}
+.billing-fields{display:none;padding-top:4px}
+.billing-fields.open{display:block}
+
+/* Warm tips */
+.tips{padding:14px 0 12px;border-top:1px solid #f3f4f6;margin-top:4px}
+.tips-t{font-size:13px;font-weight:600;color:#374151;margin-bottom:7px}
+.tips p{font-size:12px;color:#6b7280;line-height:1.9}
+
+/* P2 bottom summary */
+.p2-bottom{background:#fff;border-radius:16px;margin:12px 16px 0;padding:16px 16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.p2-sum-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:14px}
+.p2-sum-row .l{color:#6b7280}
+.p2-sum-row .v{font-weight:500;color:#1c1c1e}
+.p2-sum-row.total .l{font-size:15px;font-weight:600;color:#1c1c1e}
+.p2-sum-row.total .v{font-size:18px;font-weight:700;color:#1c1c1e}
+.p2-sum-divider{height:1px;background:#f3f4f6;margin:8px 0}
+.buy-btn{width:100%;padding:16px;border:none;border-radius:14px;background:#1e3a8a;color:#fff;font-size:17px;font-weight:700;cursor:pointer;margin-top:16px;transition:.15s}
+.buy-btn:hover{background:#1e40af}
+.p2-secure{text-align:center;font-size:11px;color:#9ca3af;margin-top:10px}
+
+/* ===== P3 3DS ===== */
+.rdc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;max-width:500px;padding:48px 40px;text-align:center;margin:0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spin{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 24px}
+.rd-t{font-size:17px;font-weight:700;margin-bottom:8px}
+.rd-s{font-size:12px;color:var(--text3);line-height:1.9;margin-bottom:16px}
+.rd-url{font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-family:monospace;word-break:break-all;text-align:left;margin-bottom:16px}
+.nb{background:var(--bg3);border:1px solid var(--border);border-left:3px solid #3b82f6;border-radius:var(--radius);padding:12px 14px;margin:14px 0}
+.nb .nt{font-size:12px;font-weight:600;color:#60a5fa;margin-bottom:4px}
+.nb p{font-size:11px;color:var(--text3);line-height:1.7}
+.sticker{font-size:10px;color:var(--text3);background:rgba(255,255,255,.06);border:1px dashed var(--border2);border-radius:4px;padding:1px 6px;margin-left:4px}
+code{font-family:monospace;font-size:10px;color:#e2e8f0;background:rgba(255,255,255,.08);padding:1px 4px;border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- Proto nav -->
+<div class="pnav">
+  <span class="pnav-t">BTCC × payabl. VM 卡 Payin</span>
+  <button class="pt on" onclick="go('p1')">P1 选择支付</button>
+  <button class="pt" onclick="go('p2')">P2 填写卡片</button>
+  <button class="pt" onclick="go('p3')">P3 3DS 跳转</button>
+</div>
+
+<!-- ================== P1 ================== -->
+<div id="p1" class="scr on">
+  <nav class="bnav">
+    <div class="blogo">BTCC</div>
+    <div class="nlinks">
+      <div class="nl on">入金▾</div>
+      <div class="nl">行情</div>
+      <div class="nl">合约▾</div>
+      <div class="nl">跟单▾</div>
+      <div class="nl">现货▾</div>
+      <div class="nl">福利▾</div>
+    </div>
+    <div class="nr">
+      <button class="bdep">入金</button>
+      <span style="color:var(--text2);font-size:13px;cursor:pointer">资产▾</span>
+      <span style="color:var(--text2);font-size:14px;cursor:pointer;margin-left:8px">👤</span>
+    </div>
+  </nav>
+  <div class="sl">P1 — 法币入金 · 选择支付方式</div>
+  <div class="bread">BTCC<span class="s">/</span>资产<span class="s">/</span><span class="c">法币入金</span></div>
+  <div class="pw">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div style="font-size:22px;font-weight:700">法币入金</div>
+      <button style="padding:7px 14px;border:1px solid var(--border2);border-radius:var(--radius);color:var(--text2);font-size:12px;cursor:pointer;background:transparent">数字货币入金</button>
+    </div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:14px">购买 USDT</div>
+    <div class="dl">
+      <!-- Left: payment methods -->
+      <div class="dl-l">
+        <div class="sh"><span class="sn">1</span>选择支付方式</div>
+        <div class="pm">
+          <div class="pi" onclick="selPM(this)">
+            <div class="pic" style="background:#f7f2e9;color:#1a1a1a;font-weight:800;font-size:11px">PIX</div>
+            <div style="flex:1"><div class="pn">PIX 转账</div><div class="pl">单笔限额 1 ~ 1,000 USDT · 巴西 BRL</div></div>
+            <div class="pchk"></div>
+          </div>
+          <div class="pi sel" onclick="selPM(this)">
+            <div class="pic" style="background:#fff;border:1px solid #e5e7eb;flex-direction:column;gap:1px">
+              <span style="font-size:9px;color:#1a1a5e;font-weight:900;letter-spacing:-.5px">payabl.</span>
+            </div>
+            <div style="flex:1">
+              <div class="pn">Payable <span class="tag">本次接入</span></div>
+              <div class="pl">Visa / Mastercard · 10 ~ 20,000 USDT · EUR/USD/GBP</div>
+            </div>
+            <div class="pchk"></div>
+          </div>
+          <div class="pi" onclick="selPM(this)">
+            <div class="pic" style="background:#1c4587;color:#fff;font-size:9px;font-weight:700">Interac</div>
+            <div style="flex:1"><div class="pn">Interac 转账</div><div class="pl">单笔限额 5 ~ 3,000 USDT · 加拿大 CAD</div></div>
+            <div class="pchk"></div>
+          </div>
+          <div class="pi" onclick="selPM(this)">
+            <div class="pic" style="background:#f5a623;color:#fff;font-size:9px;font-weight:700;text-align:center;line-height:1.3">Apple<br>Pay</div>
+            <div style="flex:1"><div class="pn">Apple Pay</div><div class="pl">单笔限额 1 ~ 5,000 USDT</div></div>
+            <div class="pchk"></div>
+          </div>
+          <div class="pi" onclick="selPM(this)">
+            <div class="pic" style="background:#4285f4;color:#fff;font-size:9px;font-weight:700;text-align:center;line-height:1.3">Google<br>Pay</div>
+            <div style="flex:1"><div class="pn">Google Pay</div><div class="pl">单笔限额 1 ~ 5,000 USDT</div></div>
+            <div class="pchk"></div>
+          </div>
+        </div>
+        <div class="pm-foot">🔒 由 payabl. 提供支付处理服务，通道数据不落地</div>
+      </div>
+      <!-- Arrow -->
+      <div class="dl-d"><div class="cd">→</div></div>
+      <!-- Right: amount + summary -->
+      <div class="dl-r">
+        <div class="sh"><span class="sn">2</span>购买数量</div>
+        <div class="qs">输入购买 USDT 数量，实际扣款以人民币/外币计价</div>
+        <div class="qi-w">
+          <input class="qi" id="amt" value="500" oninput="calcSummary()">
+          <div class="qsep"></div>
+          <div class="qcurr">USDT ▾</div>
+        </div>
+        <div class="qq">
+          <div class="qch" onclick="setAmt(100,this)">100</div>
+          <div class="qch" onclick="setAmt(200,this)">200</div>
+          <div class="qch s" onclick="setAmt(500,this)">500</div>
+          <div class="qch" onclick="setAmt(1000,this)">1000</div>
+          <div class="qch" onclick="setAmt(2000,this)">2000</div>
+        </div>
+        <div class="sum-box">
+          <div class="sr">
+            <span class="sl2">手续费</span>
+            <span class="sv green">0.00 EUR<span class="vip">VIP 免手续费</span></span>
+          </div>
+          <div class="sr">
+            <span class="sl2">单价</span>
+            <span class="sv" id="rate-v">1 USDT ≈ 0.92 EUR</span>
+          </div>
+          <div class="sr">
+            <span class="sl2">您需支付</span>
+            <span class="sv big" id="pay-v">460.00 EUR</span>
+          </div>
+          <div class="sr">
+            <span class="sl2">您将获得</span>
+            <span class="sv big" id="get-v">500 USDT</span>
+          </div>
+        </div>
+        <button class="btn-main" onclick="go('p2')">立即购买 →</button>
+        <div class="sb">🔒 SSL 加密 &nbsp;|&nbsp; payabl. 安全通道</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== P2 ================== -->
+<div id="p2" class="scr">
+  <div class="p2-bg">
+    <nav class="bnav" style="top:40px">
+      <div class="blogo">BTCC</div>
+      <div class="nlinks"><div class="nl on">入金▾</div></div>
+      <div class="nr"><button class="bdep">入金</button><span style="color:var(--text2);font-size:13px;cursor:pointer">资产▾</span></div>
+    </nav>
+    <div class="sl">P2 — 支付详情 · 填写卡片信息</div>
+    <div style="background:var(--bg);text-align:center;padding:10px 0 6px">
+      <span style="font-size:15px;font-weight:700;color:var(--text)">购买USDT</span>
+    </div>
+    <div class="p2-wrap">
+      <!-- Card form -->
+      <div class="p2-card">
+        <div class="p2-card-title">支付详情</div>
+
+        <!-- 卡号 -->
+        <div class="ff-field">
+          <div class="ff-label">卡号</div>
+          <div class="ccn-wrap">
+            <div class="ccn-badge" id="brand-badge">VISA</div>
+            <input class="ff-input has-badge mono" id="ccn" value="4242 4242 4242 4242" placeholder="卡号" oninput="detectBrand(this)">
+            <span class="ccn-scan">⊡</span>
+          </div>
+        </div>
+
+        <!-- 有效日期 -->
+        <div class="ff-field" style="max-width:200px">
+          <div class="ff-label">有效日期（MM/YY）</div>
+          <input class="ff-input" value="03/61" placeholder="MM/YY">
+        </div>
+
+        <!-- 安全码 -->
+        <div class="ff-field" style="max-width:200px">
+          <div class="ff-label">安全码（CVV/CVC）</div>
+          <input class="ff-input" type="password" value="111" placeholder="CVV">
+        </div>
+
+        <!-- 持卡人 -->
+        <div class="ff-field">
+          <div class="ff-label">持卡人 <span style="font-size:11px;color:#9ca3af;font-weight:400">ⓘ</span></div>
+          <div class="ff-row">
+            <div class="ff-field">
+              <input class="ff-input" value="JOJ" placeholder="名 First Name">
+            </div>
+            <div class="ff-field">
+              <input class="ff-input" value="LOU" placeholder="姓 Last Name">
+            </div>
+          </div>
+          <div class="ff-hint">支付成功后将自动绑定银行卡，<a href="#">查看推荐银行</a></div>
+        </div>
+
+        <!-- 邮箱（API 必填）-->
+        <div class="ff-field">
+          <div class="ff-label">邮箱</div>
+          <input class="ff-input" type="email" value="john@example.com" placeholder="用于接收支付凭证（必填）">
+        </div>
+
+        <!-- 账单地址 toggle -->
+        <div class="billing-toggle-row">
+          <div class="billing-toggle-text">
+            <div class="btl">账单地址</div>
+            <div class="bts">正确填写资料，可更顺利地成功完成买币。</div>
+          </div>
+          <button class="ios-toggle" id="billing-toggle" onclick="toggleBilling()"></button>
+        </div>
+        <div class="billing-fields open" id="billing-fields">
+          <div class="ff-field" style="margin-top:8px">
+            <div class="ff-label">街道地址 Street</div>
+            <input class="ff-input" value="An der Welle 4" placeholder="Street address">
+          </div>
+          <div class="ff-row">
+            <div class="ff-field">
+              <div class="ff-label">城市 City</div>
+              <input class="ff-input" value="Frankfurt">
+            </div>
+            <div class="ff-field">
+              <div class="ff-label">邮编 ZIP</div>
+              <input class="ff-input" value="60322">
+            </div>
+          </div>
+          <div class="ff-field">
+            <div class="ff-label">国家 Country（ISO 3位）</div>
+            <select class="ff-input">
+              <option value="DEU" selected>🇩🇪 Germany (DEU)</option>
+              <option value="GBR">🇬🇧 United Kingdom (GBR)</option>
+              <option value="FRA">🇫🇷 France (FRA)</option>
+              <option value="USA">🇺🇸 United States (USA)</option>
+              <option value="ARE">🇦🇪 UAE (ARE)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 温馨提示 -->
+        <div class="tips">
+          <div class="tips-t">温馨提示：</div>
+          <p>1、目前只支持Visa和Master卡进行绑定。<br>
+          2、提交无需支付任何费用，只做绑定验证。<br>
+          3、提交银行卡资讯表示您同意：银行卡支付处理器根据支付卡安全标准（PCI DSS）存储您的持卡人资讯，便于您后续的出入金。</p>
+        </div>
+      </div>
+
+      <!-- Bottom summary + CTA -->
+      <div class="p2-bottom">
+        <div class="p2-sum-row"><span class="l">单价</span><span class="v">1 USD</span></div>
+        <div class="p2-sum-row"><span class="l">您需支付</span><span class="v">1020 USD</span></div>
+        <div class="p2-sum-row"><span class="l">手续费</span><span class="v">20 USDT</span></div>
+        <div class="p2-sum-divider"></div>
+        <div class="p2-sum-row total"><span class="l">您将获得</span><span class="v">1000.00 USDT</span></div>
+        <button class="buy-btn" onclick="go('p3')">立即购买</button>
+        <div class="p2-secure">🔒 SSL 加密 &nbsp;|&nbsp; payabl. PCI DSS &nbsp;|&nbsp; 3D Secure</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== P3 ================== -->
+<div id="p3" class="scr">
+  <nav class="bnav">
+    <div class="blogo">BTCC</div>
+    <div class="nlinks"><div class="nl on">入金▾</div></div>
+    <div class="nr"><span style="color:var(--text2);font-size:13px;cursor:pointer">资产▾</span></div>
+  </nav>
+  <div class="sl">P3 — 3DS 跳转（errorcode=2000，url_3ds 已返回）</div>
+  <div style="display:flex;justify-content:center;padding:60px 28px 40px">
+    <div class="rdc">
+      <div class="spin"></div>
+      <div class="rd-t">正在跳转至银行进行安全验证</div>
+      <div class="rd-s">
+        payabl. 已完成授权请求，正在将您重定向至<br>
+        <strong style="color:var(--text)">发卡行 3D Secure 验证页面</strong><br><br>
+        请勿关闭或刷新此页面
+      </div>
+      <div class="rd-url">3DS 跳转地址（url_3ds）：<br>https://3ds.payabl.com/v1/fb1657ac65343bdaa831dfd633ff8f20/redirect<span class="sticker">errorcode=2000</span></div>
+      <div class="nb">
+        <div class="nt">ℹ️ 系统说明</div>
+        <p>payabl. 返回 <code>errorcode=2000</code>（pending）及 <code>url_3ds</code>。BTCC 前端 decode 后将用户浏览器重定向至该地址。3DS 验证完成后银行回调 payabl.，payabl. 再向 BTCC <code>notification_url</code> 推送最终结果。</p>
+      </div>
+      <button class="btn-ghost" onclick="go('p2')">← 返回</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function go(id){
+  document.querySelectorAll(".scr").forEach(function(s){s.classList.remove("on")});
+  document.querySelectorAll(".pt").forEach(function(t){t.classList.remove("on")});
+  document.getElementById(id).classList.add("on");
+  var map={p1:0,p2:1,p3:2};
+  var ts=document.querySelectorAll(".pt");
+  if(map[id]!==undefined) ts[map[id]].classList.add("on");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function selPM(el){
+  document.querySelectorAll(".pi").forEach(function(p){p.classList.remove("sel")});
+  el.classList.add("sel");
+}
+function setAmt(v,el){
+  document.getElementById("amt").value=v;
+  document.querySelectorAll(".qch").forEach(function(c){c.classList.remove("s")});
+  el.classList.add("s");
+  calcSummary();
+}
+function calcSummary(){
+  var amt=parseFloat(document.getElementById("amt").value)||0;
+  var pay=(amt*0.92).toFixed(2);
+  document.getElementById("pay-v").textContent=pay+" EUR";
+  document.getElementById("get-v").textContent=amt.toLocaleString()+" USDT";
+}
+function detectBrand(el){
+  var v=el.value.replace(/\s/g,"");
+  var b=document.getElementById("brand-badge");
+  if(v.charAt(0)==="4"){b.textContent="VISA";b.style.background="#1a56db"}
+  else if(v.charAt(0)==="5"){b.textContent="MC";b.style.background="#eb001b"}
+  else{b.textContent="CARD";b.style.background="#6b7280"}
+}
+var billingOpen=true;
+document.getElementById("billing-toggle").classList.add("on");
+function toggleBilling(){
+  billingOpen=!billingOpen;
+  var tg=document.getElementById("billing-toggle");
+  var fields=document.getElementById("billing-fields");
+  tg.classList.toggle("on",billingOpen);
+  fields.classList.toggle("open",billingOpen);
+}
+</script>
+</body>
+</html>
